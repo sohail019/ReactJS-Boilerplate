@@ -1,0 +1,8 @@
+Basic Setup and Fetching Data
+Error Handling and Loading States
+React Query DevTools
+Data Caching and Automatic Refetching
+Query Keys and Query Invalidation
+Mutations (POST/PUT/DELETE Requests)
+Pagination and Infinite Scroll
+Optimistic Updates and Background Refreshing
