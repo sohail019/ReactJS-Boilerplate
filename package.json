@@ -11,6 +11,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@amcharts/amcharts5": "^5.10.8",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.1.7",
@@ -18,8 +19,11 @@
     "@reduxjs/toolkit": "^2.3.0",
     "@tanstack/react-query": "^5.60.6",
     "@tanstack/react-query-devtools": "^5.61.0",
+    "ag-grid-community": "^32.3.3",
+    "ag-grid-react": "^32.3.3",
     "axios": "^1.7.7",
     "chart.js": "^4.4.6",
+    "file-saver": "^2.0.5",
     "miragejs": "^0.1.48",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",
@@ -34,6 +38,7 @@
     "@eslint/js": "^9.13.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
+    "@types/file-saver": "^2.0.7",
     "@types/node": "^22.9.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

@@ -27,6 +27,8 @@ import Debounce from './pages/custom/debounce.tsx';
 import FormValidation from './pages/custom/form-validation.tsx';
 import FetchList from './pages/custom/fetch-list.tsx';
 import FetchById from './pages/custom/fetch-list-by-id.tsx';
+import CreateResource from './pages/custom/create-resource.tsx';
+import GridExample from './pages/data-visual.tsx';
 
 const router = createBrowserRouter([
   {
@@ -63,6 +65,10 @@ const router = createBrowserRouter([
         element: <ChartPage />,
       },
       {
+        path: "data-visual",
+        element: <GridExample />
+      },
+      {
         path: 'custom-hooks',
         children: [
           {
@@ -92,6 +98,10 @@ const router = createBrowserRouter([
           {
             path: 'use-fetch-by-id',
             element: <FetchById />, 
+          },
+          {
+            path: 'use-create-resource',
+            element: <CreateResource />, 
           },
           
         ],

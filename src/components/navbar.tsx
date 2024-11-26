@@ -50,6 +50,7 @@ const Navbar = () => {
     { label: 'React Query', path: '/react-query' },
     { label: 'Mutations', path: '/mutations' },
     { label: 'Chart', path: '/chart' },
+    { label: 'Data Visual', path: '/data-visual' },
     {
       label: 'Custom Hooks',
       path: '/custom-hooks',
@@ -60,6 +61,7 @@ const Navbar = () => {
         { label: 'useFormValidation', path: '/custom-hooks/use-form-validation' },
         { label: 'useFetchList', path: '/custom-hooks/use-fetch-list' },
         { label: 'useFetchById', path: '/custom-hooks/use-fetch-by-id' },
+        { label: 'useCreateResource', path: '/custom-hooks/use-create-resource' },
       ],
     },
   ];
