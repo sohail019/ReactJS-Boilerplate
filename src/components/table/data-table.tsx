@@ -7,6 +7,7 @@ import useFetchData from '../../hooks/crud/use-fetch-data';
 
 interface DataTableProps {
   url: string;
+  rowData: any[]
   columnDefs: any[];
   paginationPageSize?: number;
   defaultColDef?: any;
@@ -53,6 +54,14 @@ const DataTable: React.FC<DataTableProps> = ({
     );
   }
 
+   const modifiedColumnDefs = columnDefs.map((colDef: any) => {
+    console.log(colDef.cellRenderer)
+     if (colDef.cellRenderer) {
+       colDef.cellRendererFramework = colDef.cellRenderer;
+     }
+     return colDef;
+   });
+
   return (
     <div className="ag-theme-alpine" style={{ height: '600px', width: '100%' }}>
       <div style={{ marginBottom: '10px' }}>
@@ -61,7 +70,7 @@ const DataTable: React.FC<DataTableProps> = ({
         </Button>
       </div>
       <AgGridReact
-        columnDefs={columnDefs}
+        columnDefs={modifiedColumnDefs}
         rowData={rowData} 
         paginationPageSize={paginationPageSize}
         defaultColDef={defaultColDef}

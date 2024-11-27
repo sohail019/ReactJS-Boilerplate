@@ -5,7 +5,7 @@ import TabSwitcher from '../components/ui/tabs-switcher';
 const DataVisual = () => {
   return (
     <div>
-      <h1>Table Page</h1>
+      <h1>Data Visualization</h1>
       <TabSwitcher />
     </div>
   );
