@@ -6,7 +6,7 @@ import { CssBaseline, Typography } from '@mui/material';
 import { ThemeProviderWrapper } from './context/theme-context.tsx';
 import { Provider } from 'react-redux';
 import { store } from './store/store.ts';
-import { createBrowserRouter, Form, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Home from './pages/home.tsx';
 import About from './pages/about.tsx';
 import Contact from './pages/contact.tsx';
@@ -30,6 +30,9 @@ import FetchById from './pages/custom/fetch-list-by-id.tsx';
 import CreateResource from './pages/custom/create-resource.tsx';
 import GridExample from './pages/data-visual.tsx';
 import FetchData from './pages/custom/fetch-data.tsx';
+import CRUDPage from './pages/custom/crud.tsx';
+import { ToastContainer } from 'react-toastify';
+
 
 const router = createBrowserRouter([
   {
@@ -108,6 +111,10 @@ const router = createBrowserRouter([
             path: 'use-fetch-data',
             element: <FetchData />, 
           },
+          {
+            path: "crud",
+            element: <CRUDPage />,
+          }
           
         ],
       },
@@ -118,9 +125,9 @@ const router = createBrowserRouter([
   },
 ]);
 
-// if (process.env.NODE_ENV === 'development') {
-//   makeServer();
-// }
+if (process.env.NODE_ENV === 'development') {
+  makeServer();
+}
 const queryClient = new QueryClient()
 
 createRoot(document.getElementById('root')!).render(
@@ -131,6 +138,7 @@ createRoot(document.getElementById('root')!).render(
           <CssBaseline />
           <RouterProvider router={router} />
           <ReactQueryDevtools initialIsOpen={false} />
+          <ToastContainer />
         </ThemeProviderWrapper>
       </Provider>
     </QueryClientProvider>

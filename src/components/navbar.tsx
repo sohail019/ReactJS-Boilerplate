@@ -62,6 +62,8 @@ const Navbar = () => {
         { label: 'useFetchList', path: '/custom-hooks/use-fetch-list' },
         { label: 'useFetchById', path: '/custom-hooks/use-fetch-by-id' },
         { label: 'useCreateResource', path: '/custom-hooks/use-create-resource' },
+        { label: 'useFetchData', path: '/custom-hooks/use-fetch-data' },
+        { label: 'CRUD', path: '/custom-hooks/crud' },
       ],
     },
   ];
