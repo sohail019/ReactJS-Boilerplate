@@ -29,6 +29,7 @@ import FetchList from './pages/custom/fetch-list.tsx';
 import FetchById from './pages/custom/fetch-list-by-id.tsx';
 import CreateResource from './pages/custom/create-resource.tsx';
 import GridExample from './pages/data-visual.tsx';
+import FetchData from './pages/custom/fetch-data.tsx';
 
 const router = createBrowserRouter([
   {
@@ -102,6 +103,10 @@ const router = createBrowserRouter([
           {
             path: 'use-create-resource',
             element: <CreateResource />, 
+          },
+          {
+            path: 'use-fetch-data',
+            element: <FetchData />, 
           },
           
         ],
