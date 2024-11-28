@@ -8,6 +8,9 @@ const FormPage: React.FC = () => {
         label: 'Email Address',
         placeholder: 'Enter your email',
         required: true,
+        validation: {
+          type: 'email',
+        },
       },
       {
         name: 'password',
@@ -15,6 +18,10 @@ const FormPage: React.FC = () => {
         label: 'Password',
         placeholder: 'Enter your password',
         required: true,
+        validation: {
+          minLength: 6,
+          maxLength: 20,
+        },
       },
       {
         name: 'about',
@@ -22,6 +29,9 @@ const FormPage: React.FC = () => {
         label: 'About You',
         placeholder: 'Tell us about yourself',
         required: false,
+        validation: {
+          maxLength: 200,
+        },
       },
     ];
 

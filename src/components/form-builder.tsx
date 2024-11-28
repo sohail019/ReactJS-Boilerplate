@@ -1,35 +1,83 @@
-
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm } from 'react-hook-form';
 interface FieldConfig {
-    name: string;
-    type: "email" | "password" | "text";
-    label: string;
-    placeholder?: string;
-    required?: boolean 
+  name: string;
+  type: string;
+  label: string;
+  placeholder?: string;
+  options?: {value: string; label: string}[]; //? for dropdown
+  required?: boolean;
+//  ? bhai it was just for testing 
+//   validation?: {
+//     type?: 'email';
+//     minLength?: number;
+//     maxLength?: number;
+//     regex?: RegExp;
+//   };
+validation: z.ZodType<any> 
 }
 
 interface FormBuilderProps {
-    config: FieldConfig[]
+  config: FieldConfig[];
 }
 
-const FormBuilder: React.FC<FormBuilderProps> = ({config}) => {
-    return (
-      <form>
-        {config.map(field => (
-          <div key={field.name} style={{ marginBottom: '16px' }}>
-            <label htmlFor={field.name}>{field.label}</label>
-            <input
-              id={field.name}
-              name={field.name}
-              type={field.type}
-              placeholder={field.placeholder}
-              required={field.required}
-              style={{ display: 'block', marginTop: '8px', width: '100%' }}
-            />
-          </div>
-        ))}
-        <button type="submit">Submit</button>
-      </form>
-    );
-} 
+const FormBuilder: React.FC<FormBuilderProps> = ({ config, onSubmit }) => {
+   const validationSchema = z.object(
+     config.reduce(
+       (schema, field) => {
+         schema[field.name] = field.validation;
+         return schema;
+       },
+       {} as Record<string, z.ZodTypeAny>,
+     ),
+   );
 
-export default FormBuilder
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(validationSchema),
+  });
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      {config.map(field => (
+        <div key={field.name} style={{ marginBottom: '1rem' }}>
+          <label htmlFor={field.name}>{field.label}</label>
+          {field.type === 'select' && field.options ? (
+            <Controller
+              name={field.name}
+              control={control}
+              render={({ field: controllerField }) => (
+                <select {...controllerField}>
+                  <option value="">Select an option</option>
+                  {field.options.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              )}
+            />
+          ) : (
+            <Controller
+              name={field.name}
+              control={control}
+              render={({ field: controllerField }) => (
+                <input {...controllerField} type={field.type} id={field.name} />
+              )}
+            />
+          )}
+          {errors[field.name] && (
+            <p style={{ color: 'red' }}>{errors[field.name]?.message as string}</p>
+          )}
+        </div>
+      ))}
+      <button type="submit">Submit</button>
+    </form>
+  );
+};
+
+export default FormBuilder;
