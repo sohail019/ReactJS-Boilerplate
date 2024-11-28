@@ -1,47 +1,60 @@
-import { z } from "zod";
-import FormBuilder from "../components/form-builder";
+import FormBuilder from '../components/form-builder';
+import { z } from 'zod';
 
-const FormPage: React.FC = () => {
-    const formConfig = [
+const FormPage = () => {
+  const formConfig = {
+    fields: [
       {
-        name: 'username',
-        label: 'Username',
+        name: 'firstName',
+        label: 'First Name',
         type: 'text',
-        validation: z.string().min(3, 'Username must be at least 3 characters long'),
+        validation: z.string().min(2, 'First Name must be at least 2 characters'),
+        columnSpan: 6,
+      },
+      {
+        name: 'lastName',
+        label: 'Last Name',
+        type: 'text',
+        validation: z.string().min(2, 'Last Name must be at least 2 characters'),
+        columnSpan: 6,
       },
       {
         name: 'email',
         label: 'Email',
         type: 'email',
         validation: z.string().email('Invalid email'),
+        columnSpan: 12,
       },
       {
         name: 'password',
         label: 'Password',
         type: 'password',
         validation: z.string().min(6, 'Password must be at least 6 characters long'),
-      },
-      {
-        name: 'country',
-        label: 'Country',
-        type: 'select',
-        options: [
-          { value: 'in', label: 'India' },
-          { value: 'us', label: 'United States of America' },
-          { value: 'uk', label: 'United Kingdom' },
-        ],
-        validation: z.string().min(1, 'Please select a country'),
+        columnSpan: 12,
       },
       {
         name: 'gender',
         label: 'Gender',
         type: 'radio',
         options: [
-          { value: 'male', label: 'Male' },
-          { value: 'female', label: 'Female' },
-          { value: 'other', label: 'Other' },
+          { label: 'Male', value: 'male' },
+          { label: 'Female', value: 'female' },
+          { label: 'Other', value: 'other' },
         ],
-        validation: z.string().min(1, 'Please select your gender'),
+        validation: z.enum(['male', 'female', 'other']),
+        columnSpan: 6,
+      },
+      {
+        name: 'country',
+        label: 'Country',
+        type: 'select',
+        options: [
+          { label: 'India', value: 'india' },
+          { label: 'USA', value: 'usa' },
+          { label: 'United Kingdom', value: 'uk' },
+        ],
+        validation: z.string().min(1, 'Please select a country'),
+        columnSpan: 6,
       },
       {
         name: 'hobbies',
@@ -55,20 +68,16 @@ const FormPage: React.FC = () => {
         ],
         validation: z.array(z.string()).min(1, 'Please select at least one hobby'),
       },
-      {
-        name: 'dob',
-        label: 'Date of Birth',
-        type: 'date', 
-        validation: z.string().min(1, 'Please select your date of birth'),
-      },
-    ];
-
-    const handleFormSubmit = (data: any) => {
-        alert(`Form Submitted for ${data.email}`);
+    ],
+    onSubmit: (data: any) => {
+      alert(`Form Submitted of ${data.email}`);
       console.log('Form Data:', data);
-    };
+    }
+  };
 
-    return <FormBuilder config={formConfig} onSubmit={handleFormSubmit} />;
-}
+  return (
+      <FormBuilder {...formConfig} />
+  );
+};
 
-export default FormPage
+export default FormPage;
