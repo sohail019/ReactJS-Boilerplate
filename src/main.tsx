@@ -32,6 +32,7 @@ import GridExample from './pages/data-visual.tsx';
 import FetchData from './pages/custom/fetch-data.tsx';
 import CRUDPage from './pages/custom/crud.tsx';
 import { ToastContainer } from 'react-toastify';
+import FormPage from './pages/form-page.tsx';
 
 
 const router = createBrowserRouter([
@@ -71,6 +72,10 @@ const router = createBrowserRouter([
       {
         path: "data-visual",
         element: <GridExample />
+      },
+      {
+        path: "form-builder",
+        element: <FormPage />
       },
       {
         path: 'custom-hooks',

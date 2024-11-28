@@ -41,7 +41,6 @@ const Navbar = () => {
     setAnchorEl(null);
   };
 
-  // Define the links for the menu
   const menuLinks = [
     { label: 'Home', path: '/' },
     { label: 'About', path: '/about' },
@@ -51,6 +50,7 @@ const Navbar = () => {
     { label: 'Mutations', path: '/mutations' },
     { label: 'Chart', path: '/chart' },
     { label: 'Data Visual', path: '/data-visual' },
+    { label: 'Form Builder', path: '/form-builder' },
     {
       label: 'Custom Hooks',
       path: '/custom-hooks',
