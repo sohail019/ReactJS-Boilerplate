@@ -30,6 +30,10 @@ interface FieldConfig {
   validation?: ZodType;
   columnSpan?: number;
   style?: React.CSSProperties;
+  conditionalRender?: {
+    dependsOn: string;
+    value: any;
+  };
 }
 
 interface FormConfig {
@@ -52,6 +56,7 @@ const FormBuilder: React.FC<FormConfig> = ({ fields, onSubmit }) => {
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
@@ -64,9 +69,11 @@ const FormBuilder: React.FC<FormConfig> = ({ fields, onSubmit }) => {
     ),
   });
 
+  const fieldValues = watch();
+
   const handleFormSubmit = (data: any) => {
-    onSubmit(data); // Call the onSubmit prop to handle submission logic
-    reset(); // Reset the form fields after submission
+    onSubmit(data); 
+    reset(); 
   };
 
   return (
@@ -92,97 +99,119 @@ const FormBuilder: React.FC<FormConfig> = ({ fields, onSubmit }) => {
             gap: 2,
           }}
         >
-          {fields.map((field, index) => (
-            <Box key={index} sx={{ gridColumn: `span ${field.columnSpan || 1}` }}>
-              <Controller
-                name={field.name}
-                control={control}
-                render={({ field: controllerField }) => {
-                  switch (field.type) {
-                    case 'text':
-                    case 'email':
-                    case 'password':
-                      return (
-                        <TextField
-                          {...controllerField}
-                          label={field.label}
-                          type={field.type}
-                          fullWidth
-                          error={!!errors[field.name]}
-                          helperText={errors[field.name]?.message?.toString()}
-                        />
-                      );
-                    case 'select':
-                      return (
-                        <FormControl fullWidth>
-                          <InputLabel>{field.label}</InputLabel>
-                          <Select {...controllerField} label={field.label}>
-                            {field.options?.map(option => (
-                              <MenuItem key={option.value} value={option.value}>
-                                {option.label}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      );
-                    case 'radio':
-                      return (
-                        <FormControl>
-                          <Typography>{field.label}</Typography>
-                          <RadioGroup {...controllerField}>
-                            {field.options?.map(option => (
-                              <FormControlLabel
-                                key={option.value}
-                                value={option.value}
-                                control={<Radio />}
-                                label={option.label}
-                              />
-                            ))}
-                          </RadioGroup>
-                        </FormControl>
-                      );
-                    case 'checkbox':
-                      if (!field.options) {
-                        return (
-                          <FormControlLabel
-                            control={
-                              <Checkbox {...controllerField} checked={controllerField.value} />
-                            }
-                            label={field.label}
-                          />
-                        );
-                      }
-                      return (
-                        <Box>
-                          {field.options?.map(option => (
-                            <FormControlLabel
-                              key={option.value}
-                              control={
-                                <Checkbox
-                                  value={option.value}
-                                  checked={controllerField.value.includes(option.value)}
-                                  onChange={e => {
-                                    const newValues = e.target.checked
-                                      ? [...controllerField.value, option.value]
-                                      : controllerField.value.filter(
-                                          (v: any) => v !== option.value,
-                                        );
-                                    controllerField.onChange(newValues);
-                                  }}
-                                />
-                              }
-                              label={option.label}
+          {fields.map((field, index) => {
+            const shouldRender = (() => {
+              const condition = field.conditionalRender;
+              if (!condition) return true;
+
+              const dependentValue = fieldValues[condition.dependsOn];
+
+              //? for checkbox condition because it saves in array
+              if (Array.isArray(dependentValue)) {
+                return dependentValue.includes(condition.value);
+              }
+              return dependentValue === condition.value;
+            })();
+
+            if (!shouldRender) return null;
+
+            return (
+              <Box key={index} sx={{ gridColumn: `span ${field.columnSpan || 1}` }}>
+                {field.type === 'typography' ? (
+                  <Typography sx={{ ...field.style }}>{field.label}</Typography>
+                ) : (
+                  <Controller
+                    name={field.name}
+                    control={control}
+                    render={({ field: controllerField }) => {
+                      switch (field.type) {
+                        case 'text':
+                        case 'email':
+                        case 'password':
+                          return (
+                            <TextField
+                              {...controllerField}
+                              label={field.label}
+                              type={field.type}
+                              fullWidth
+                              error={!!errors[field.name]}
+                              helperText={errors[field.name]?.message?.toString()}
                             />
-                          ))}
-                        </Box>
-                      );
-                    default:
-                      return <></>;
-                  }
-                }}
-              />
-            </Box>
-          ))}
+                          );
+                        case 'select':
+                          return (
+                            <FormControl fullWidth>
+                              <InputLabel>{field.label}</InputLabel>
+                              <Select {...controllerField} label={field.label}>
+                                {field.options?.map(option => (
+                                  <MenuItem key={option.value} value={option.value}>
+                                    {option.label}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            </FormControl>
+                          );
+                        case 'radio':
+                          return (
+                            <FormControl>
+                              <Typography>{field.label}</Typography>
+                              <RadioGroup {...controllerField}>
+                                {field.options?.map(option => (
+                                  <FormControlLabel
+                                    key={option.value}
+                                    value={option.value}
+                                    control={<Radio />}
+                                    label={option.label}
+                                  />
+                                ))}
+                              </RadioGroup>
+                            </FormControl>
+                          );
+                        case 'checkbox':
+                          if (!field.options) {
+                            return (
+                              <FormControlLabel
+                                control={
+                                  <Checkbox {...controllerField} checked={controllerField.value} />
+                                }
+                                label={field.label}
+                              />
+                            );
+                          }
+                          return (
+                            <Box>
+                              <Typography>{field.label}</Typography>
+                              {field.options?.map(option => (
+                                <FormControlLabel
+                                  key={option.value}
+                                  control={
+                                    <Checkbox
+                                      value={option.value}
+                                      checked={controllerField.value.includes(option.value)}
+                                      onChange={e => {
+                                        const newValues = e.target.checked
+                                          ? [...controllerField.value, option.value]
+                                          : controllerField.value.filter(
+                                              (v: any) => v !== option.value,
+                                            );
+                                        controllerField.onChange(newValues);
+                                      }}
+                                    />
+                                  }
+                                  label={option.label}
+                                />
+                              ))}
+                            </Box>
+                          );
+                        default:
+                          return <></>;
+                      }
+                    }}
+                  />
+                )}
+              </Box>
+            );
+          })}
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 3 }}>
           <Button type="button" variant="outlined" color="secondary" onClick={() => reset()}>
