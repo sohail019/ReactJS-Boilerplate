@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import {
   Box,
@@ -13,9 +13,13 @@ import {
   FormControlLabel,
   Radio,
   Checkbox,
+  LinearProgressWithLabel,
+  LinearProgress,
+  IconButton,
 } from '@mui/material';
 import { z, ZodType } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Cancel, Delete } from '@mui/icons-material';
 
 interface FieldOption {
   label: string;
@@ -34,6 +38,9 @@ interface FieldConfig {
     dependsOn: string;
     value: any;
   };
+  multiple?: boolean; 
+  maxSize?: number; 
+  allowedFormats?: string[]; 
 }
 
 interface FormConfig {
@@ -45,7 +52,7 @@ const FormBuilder: React.FC<FormConfig> = ({ fields, onSubmit }) => {
   const schema = z.object(
     fields.reduce(
       (acc, field) => {
-        acc[field.name] = field.validation || z.string();
+        acc[field.name] = field.validation || z.any();
         return acc;
       },
       {} as Record<string, ZodType>,
@@ -70,10 +77,106 @@ const FormBuilder: React.FC<FormConfig> = ({ fields, onSubmit }) => {
   });
 
   const fieldValues = watch();
+  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
+  const [uploadPreviews, setUploadPreviews] = useState<Record<string, string[]>>({});
+  const [cancelUpload, setCancelUpload] = useState<Record<string, boolean>>({});
+  const [completedUploads, setCompletedUploads] = useState<Record<string, boolean>>({});
+
+  const handleFileValidation = (
+    files: FileList | null,
+    field: FieldConfig,
+  ): { validFiles: File[]; errors: string[] } => {
+    if (!files) return { validFiles: [], errors: [] };
+
+    const errors: string[] = [];
+    const validFiles: File[] = [];
+
+    Array.from(files).forEach(file => {
+      if (field.allowedFormats && !field.allowedFormats.includes(file.type)) {
+        errors.push(`File ${file.name} has an invalid format.`);
+        return;
+      }
+      if (field.maxSizeMB && file.size > field.maxSizeMB * 1024 * 1024) {
+        errors.push(`File ${file.name} exceeds the size limit of ${field.maxSizeMB} MB.`);
+        return;
+      }
+      validFiles.push(file);
+    });
+
+    return { validFiles, errors };
+  };
+
+  const simulateFileUpload = (fieldName: string, files: File[]) => {
+    files.forEach(file => {
+      setUploadProgress(prev => ({ ...prev, [fieldName]: 0 }));
+      setCancelUpload(prev => ({ ...prev, [fieldName]: false }));
+      setCompletedUploads(prev => ({ ...prev, [fieldName]: false })); 
+
+      const interval = setInterval(() => {
+        setUploadProgress(prev => {
+          const currentProgress = prev[fieldName] ?? 0;
+
+          if (currentProgress >= 100 || cancelUpload[fieldName]) {
+            clearInterval(interval);
+
+            if (cancelUpload[fieldName]) {
+              setUploadProgress(prev => ({ ...prev, [fieldName]: 0 }));
+              
+            } else {
+              alert(`${file.name} uploaded successfully!`);
+              setCompletedUploads(prev => ({ ...prev, [fieldName]: true })); 
+            }
+
+            return prev;
+          }
+
+          return { ...prev, [fieldName]: currentProgress + 10 }; 
+        });
+      }, 200);
+    });
+  };
+
+  const handleFileInputChange = (
+    field: FieldConfig,
+    files: FileList | null,
+    controllerField: any,
+  ) => {
+    const { validFiles, errors } = handleFileValidation(files, field);
+
+    if (errors.length > 0) {
+      alert(errors.join('\n'));
+      return;
+    }
+
+    if (validFiles.length > 0) {
+      const previews = validFiles.map(file => URL.createObjectURL(file));
+      setUploadPreviews(prev => ({
+        ...prev,
+        [field.name]: field.multiple ? [...(prev[field.name] || []), ...previews] : previews,
+      }));
+
+      simulateFileUpload(field.name, validFiles);
+    }
+
+    controllerField.onChange(field.multiple ? validFiles : validFiles[0] || null);
+  };
+
+  const handleDeleteFile = (field: FieldConfig, index: number) => {
+    setUploadPreviews(prev => {
+      const updatedPreviews = [...(prev[field.name] || [])];
+      updatedPreviews.splice(index, 1);
+      if (updatedPreviews.length === 0) {
+        setCompletedUploads(prev => ({ ...prev, [field.name]: false }));
+        setUploadProgress(prev => ({ ...prev, [field.name]: 0 }));
+      }
+
+      return { ...prev, [field.name]: updatedPreviews };
+    });
+  };
 
   const handleFormSubmit = (data: any) => {
-    onSubmit(data); 
-    reset(); 
+    onSubmit(data);
+    reset();
   };
 
   return (
@@ -106,7 +209,6 @@ const FormBuilder: React.FC<FormConfig> = ({ fields, onSubmit }) => {
 
               const dependentValue = fieldValues[condition.dependsOn];
 
-              //? for checkbox condition because it saves in array
               if (Array.isArray(dependentValue)) {
                 return dependentValue.includes(condition.value);
               }
@@ -203,8 +305,59 @@ const FormBuilder: React.FC<FormConfig> = ({ fields, onSubmit }) => {
                               ))}
                             </Box>
                           );
+                        case 'file':
+                          return (
+                            <Box>
+                              <Typography>{field.label}</Typography>
+                              <input
+                                type="file"
+                                multiple={field.multiple}
+                                onChange={e =>
+                                  handleFileInputChange(field, e.target.files, controllerField)
+                                }
+                              />
+                              {uploadPreviews[field.name] &&
+                                uploadPreviews[field.name].map((preview, idx) => (
+                                  <Box
+                                    key={idx}
+                                    sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}
+                                  >
+                                    <img
+                                      src={preview}
+                                      alt={`Preview ${idx + 1}`}
+                                      style={{ maxWidth: '200px', marginRight: '10px' }}
+                                    />
+                                    <IconButton
+                                      onClick={() => handleDeleteFile(field, idx)}
+                                      color="error"
+                                    >
+                                      <Delete />
+                                    </IconButton>
+                                  </Box>
+                                ))}
+                              {uploadProgress[field.name] !== undefined &&
+                                !completedUploads[field.name] &&
+                                uploadPreviews[field.name]?.length > 0 && ( 
+                                  <Box display="flex" alignItems="center" gap={2} mt={1}>
+                                    <LinearProgress
+                                      variant="determinate"
+                                      value={uploadProgress[field.name]}
+                                      sx={{ flex: 1 }}
+                                    />
+                                    <IconButton
+                                      onClick={() =>
+                                        setCancelUpload(prev => ({ ...prev, [field.name]: true }))
+                                      }
+                                      color="error"
+                                    >
+                                      <Cancel />
+                                    </IconButton>
+                                  </Box>
+                                )}
+                            </Box>
+                          );
                         default:
-                          return <></>;
+                          return null;
                       }
                     }}
                   />
@@ -226,4 +379,4 @@ const FormBuilder: React.FC<FormConfig> = ({ fields, onSubmit }) => {
   );
 };
 
-export default FormBuilder;
+export default FormBuilder; 
