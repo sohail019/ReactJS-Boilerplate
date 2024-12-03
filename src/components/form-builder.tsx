@@ -13,7 +13,6 @@ import {
   FormControlLabel,
   Radio,
   Checkbox,
-  LinearProgressWithLabel,
   LinearProgress,
   IconButton,
 } from '@mui/material';

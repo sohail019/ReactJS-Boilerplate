@@ -33,6 +33,7 @@ import FetchData from './pages/custom/fetch-data.tsx';
 import CRUDPage from './pages/custom/crud.tsx';
 import { ToastContainer } from 'react-toastify';
 import FormPage from './pages/form-page.tsx';
+import { AutoCompletePage } from './pages/autocomplete-page.tsx';
 
 
 const router = createBrowserRouter([
@@ -76,6 +77,10 @@ const router = createBrowserRouter([
       {
         path: "form-builder",
         element: <FormPage />
+      },
+      {
+        path: "auto-complete",
+        element: <AutoCompletePage />
       },
       {
         path: 'custom-hooks',

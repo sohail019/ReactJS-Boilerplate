@@ -51,6 +51,7 @@ const Navbar = () => {
     { label: 'Chart', path: '/chart' },
     { label: 'Data Visual', path: '/data-visual' },
     { label: 'Form Builder', path: '/form-builder' },
+    { label: 'Autocomplete', path: '/auto-complete' },
     {
       label: 'Custom Hooks',
       path: '/custom-hooks',
